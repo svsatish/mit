@@ -1,0 +1,11 @@
+valid_user:
+  username: "valid_user"
+  password: "valid_password"
+  address:
+    street: "123 Main St"
+    city: "Springfield"
+    state: "IL"
+    zip: "62701"
+invalid_user:
+  username: "invalid_user"
+  password: "invalid_password"
