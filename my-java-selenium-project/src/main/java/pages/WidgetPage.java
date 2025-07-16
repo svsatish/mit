@@ -6,151 +6,97 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConsumerOfferPage {
+public class WidgetPage {
     private WebDriver driver;
-    private static final Logger logger = LogManager.getLogger(ConsumerOfferPage.class);
+    private static final Logger logger = LogManager.getLogger(WidgetPage.class);
 
-    // All radio buttons for offers
-    @FindBy(xpath = "//input[@type='radio' and @offertype]")
-    private List<WebElement> offerRadioButtons;
+    // Widget containers for each offer
+    @FindBy(css = "div.widget-box")
+    private List<WebElement> widgetBoxes;
 
-    // Offer containers (for possible further validation)
-    @FindBy(css = "div.col-md-12.listContent.ifToggle")
-    private List<WebElement> offerContainers;
+    // All offer images (by id)
+    @FindBy(id = "Revolving")
+    private WebElement revolvingCardImage;
 
-    // Continue button at the bottom
-    @FindBy(id = "offersContbtnBtn")
-    private WebElement continueButton;
+    @FindBy(id = "SetPAY")
+    private WebElement payLaterImage;
 
-    // Confirm Selections & Submit Payment (multi-offer)
-    @FindBy(id = "multiOffersContbtnBtn")
-    private WebElement confirmSelectionsButton;
+    // All offer content blocks
+    @FindBy(css = "div.offer-content.syf-offer")
+    private List<WebElement> offerContents;
 
-    // Activate Card button (card activation)
-    @FindBy(id = "cardActivationBtn")
-    private WebElement activateCardButton;
+    // All "Learn how" links
+    @FindBy(css = "a.syf-cta")
+    private List<WebElement> learnHowLinks;
 
-    // Confirm & Submit Payment (review confirmation)
-    @FindBy(id = "reviewConfirmationD2dBtnMob")
-    private WebElement confirmAndSubmitPaymentButton;
+    // Informational text at the bottom
+    @FindBy(xpath = "//div[@id='syf-promo']//span[contains(text(),'Select your preferred financing option')]")
+    private WebElement infoText;
 
-    public ConsumerOfferPage(WebDriver driver) {
+    public WidgetPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
-        logger.info("ConsumerOfferPage initialized");
+        logger.info("WidgetPage initialized");
     }
 
-    /**
-     * Selects the offer radio button based on the given offerType attribute.
-     * @param offerType The value of the offerType attribute to match (e.g., "EPNI", "WPDI").
-     * @return true if found and selected, false otherwise.
-     */
-    public boolean selectOfferByOfferType(String offerType) {
-        logger.info("Selecting offer radio button with offerType: {}", offerType);
-        for (WebElement radio : offerRadioButtons) {
-            String attr = radio.getAttribute("offertype");
-            if (attr != null && attr.equalsIgnoreCase(offerType)) {
-                if (!radio.isSelected()) {
-                    radio.click();
-                    logger.info("Radio button with offerType '{}' selected.", offerType);
-                }
-                return true;
-            }
+    /** Returns the number of financing widgets/offers displayed */
+    public int getWidgetCount() {
+        return widgetBoxes.size();
+    }
+
+    /** Returns the offer text for a given widget index (0-based) */
+    public String getOfferText(int index) {
+        if (index >= 0 && index < offerContents.size()) {
+            return offerContents.get(index).getText();
         }
-        logger.warn("No radio button found with offerType: {}", offerType);
-        return false;
-    }
-
-    /**
-     * Selects the offer radio button based on the given tenure and offerType.
-     * @param tenure The tenure attribute value (e.g., "12", "48").
-     * @param offerType The offerType attribute value.
-     * @return true if found and selected, false otherwise.
-     */
-    public boolean selectOfferByTenureAndOfferType(String tenure, String offerType) {
-        logger.info("Selecting offer radio button with tenure: {} and offerType: {}", tenure, offerType);
-        for (WebElement radio : offerRadioButtons) {
-            String attrType = radio.getAttribute("offertype");
-            String attrTenure = radio.getAttribute("tenure");
-            if (attrType != null && attrTenure != null &&
-                attrType.equalsIgnoreCase(offerType) &&
-                attrTenure.equals(tenure)) {
-                if (!radio.isSelected()) {
-                    radio.click();
-                    logger.info("Radio button with tenure '{}' and offerType '{}' selected.", tenure, offerType);
-                }
-                return true;
-            }
-        }
-        logger.warn("No radio button found with tenure: {} and offerType: {}", tenure, offerType);
-        return false;
-    }
-
-    /**
-     * Clicks the Continue button (single offer flow).
-     */
-    public void clickContinue() {
-        logger.info("Clicking Continue button");
-        if (continueButton.isEnabled()) {
-            continueButton.click();
-        } else {
-            logger.warn("Continue button is disabled.");
-        }
-    }
-
-    /**
-     * Clicks the Confirm Selections & Submit Payment button (multi-offer flow).
-     */
-    public void clickConfirmSelections() {
-        logger.info("Clicking Confirm Selections & Submit Payment button");
-        if (confirmSelectionsButton.isEnabled()) {
-            confirmSelectionsButton.click();
-        } else {
-            logger.warn("Confirm Selections button is disabled.");
-        }
-    }
-
-    /**
-     * Clicks the Activate Card button (card activation flow).
-     */
-    public void clickActivateCard() {
-        logger.info("Clicking Activate Card button");
-        if (activateCardButton.isEnabled()) {
-            activateCardButton.click();
-        } else {
-            logger.warn("Activate Card button is disabled.");
-        }
-    }
-
-    /**
-     * Clicks the Confirm & Submit Payment button (review confirmation flow).
-     */
-    public void clickConfirmAndSubmitPayment() {
-        logger.info("Clicking Confirm & Submit Payment button");
-        if (confirmAndSubmitPaymentButton.isEnabled()) {
-            confirmAndSubmitPaymentButton.click();
-        } else {
-            logger.warn("Confirm & Submit Payment button is disabled.");
-        }
-    }
-
-    /**
-     * Gets the number of available offers.
-     */
-    public int getOfferCount() {
-        return offerRadioButtons.size();
-    }
-
-    /**
-     * Gets the offer name for a given offerType.
-     */
-    public String getOfferNameByOfferType(String offerType) {
-        for (WebElement radio : offerRadioButtons) {
-            String attr = radio.getAttribute("offertype");
-            if (attr != null && attr.equalsIgnoreCase(offerType)) {
-                return radio.getAttribute("offername");
-            }
-        }
+        logger.warn("Invalid widget index: {}", index);
         return null;
+    }
+
+    /** Clicks the "Learn how" link for a given widget index (0-based) */
+    public void clickLearnHow(int index) {
+        if (index >= 0 && index < learnHowLinks.size()) {
+            logger.info("Clicking 'Learn how' link for widget index {}", index);
+            learnHowLinks.get(index).click();
+        } else {
+            logger.warn("Invalid widget index for 'Learn how': {}", index);
+        }
+    }
+
+    /** Returns the alt text of the offer image by widget index (0-based) */
+    public String getOfferImageAltText(int index) {
+        if (index == 0) return revolvingCardImage.getAttribute("alt");
+        if (index == 1) return payLaterImage.getAttribute("alt");
+        logger.warn("Invalid widget index for image alt text: {}", index);
+        return null;
+    }
+
+    /** Returns the info text at the bottom of the widget */
+    public String getInfoText() {
+        return infoText.getText();
+    }
+
+    /** Clicks the offer image by id ("Revolving" or "SetPAY") */
+    public void clickOfferImageById(String imageId) {
+        WebElement img = null;
+        if ("Revolving".equals(imageId)) img = revolvingCardImage;
+        else if ("SetPAY".equals(imageId)) img = payLaterImage;
+        if (img != null) {
+            logger.info("Clicking offer image with id '{}'", imageId);
+            img.click();
+        } else {
+            logger.warn("No image found with id '{}'", imageId);
+        }
+    }
+
+    /** Clicks the "Learn how" link for a given offer name (e.g., "Pay Later") */
+    public void clickLearnHowByOfferName(String offerName) {
+        for (int i = 0; i < offerContents.size(); i++) {
+            if (offerContents.get(i).getText().contains(offerName)) {
+                clickLearnHow(i);
+                return;
+            }
+        }
+        logger.warn("No offer found with name '{}'", offerName);
     }
 }
