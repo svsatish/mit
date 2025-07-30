@@ -1,0 +1,40 @@
+import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
+import io.restassured.response.Response;
+import io.restassured.specification.FilterableRequestSpecification;
+import io.restassured.specification.FilterableResponseSpecification;
+import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
+
+public class ExtentLoggingFilter implements Filter {
+
+    @Override
+    public Response filter(FilterableRequestSpecification requestSpec,
+                           FilterableResponseSpecification responseSpec,
+                           FilterContext context) {
+
+        // Build and log request details
+        StringBuilder requestLog = new StringBuilder();
+        requestLog.append("🔷 REQUEST:\n");
+        requestLog.append("Method: ").append(requestSpec.getMethod()).append("\n");
+        requestLog.append("URI: ").append(requestSpec.getURI()).append("\n");
+        requestLog.append("Headers: ").append(requestSpec.getHeaders()).append("\n");
+        if (requestSpec.getBody() != null) {
+            requestLog.append("Body: ").append(requestSpec.getBody()).append("\n");
+        }
+        ExtentCucumberAdapter.addTestStepLog("<pre>" + requestLog + "</pre>");
+
+        // Send request and get response
+        Response response = context.next(requestSpec, responseSpec);
+
+        // Build and log response details
+        StringBuilder responseLog = new StringBuilder();
+        responseLog.append("🔶 RESPONSE:\n");
+        responseLog.append("Status Code: ").append(response.getStatusCode()).append("\n");
+        responseLog.append("Headers: ").append(response.getHeaders()).append("\n");
+        responseLog.append("Body: ").append(response.getBody().asPrettyString()).append("\n");
+
+        ExtentCucumberAdapter.addTestStepLog("<pre>" + responseLog + "</pre>");
+
+        return response;
+    }
+}
